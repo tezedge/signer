@@ -1,4 +1,5 @@
 import json
+import logging
 
 
 class KeysResource(object):
@@ -8,10 +9,12 @@ class KeysResource(object):
         self.content_type = 'application/json'
 
     def on_get(self, req, resp, pkh):
-        resp.content_type = self.content_type
+        logging.info("Retrieving public key for {}".format(pkh))
 
+        resp.content_type = self.content_type
         resp.body = json.dumps({"pk": "pk for {}".format(pkh)})
 
     def on_post(self, req, resp, pkh):
+        logging.info("Signing received data for {}".format(pkh))
         resp.content_type = self.content_type
         resp.body = json.dumps({"sig": "sig for {}".format(pkh)})
