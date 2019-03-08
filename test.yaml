@@ -1,6 +1,7 @@
 ---
 - config:
     - testset: "Endpoint tests"
+    - tiemout: 100
 
 - test:
     - name: "Nonexistent endpoint test"
@@ -8,18 +9,32 @@
     - method: "GET"
     - expected_status: [404]
 
-- test:
-    - name: "Bad mime type test"
-    - url: "/keys/tz1/tz1aaVRV1c32b3sDvMQe6SdqmwirSn2okWB1"
-    - method: "POST"
-    - headers: {'Content-Type': 'text/plain'}
-    - body: "text"
-    - expected_status: [415]
+#- test:
+#    - name: "Bad mime type test"
+#    - url: "/keys/tz1UKmZhi8dhUX5a5QTfCrsH9pK4dt1dVfJo"
+#    - method: "POST"
+#    - headers: {'Content-Type': 'text/plain'}
+#    - body: "text"
+#    - expected_status: [415]
 
 - test:
     - name: "Start staking"
     - url: "/start_staking"
     - method: "GET"
+
+- test:
+    - name: "Sign endorsement"
+    - url: "/keys/tz1UKmZhi8dhUX5a5QTfCrsH9pK4dt1dVfJo"
+    - method: "POST"
+    - headers: {'Content-Type': 'application/json'}
+    - body: '"02e3e15e6053f552f0e22a364259848b1e13f124cbae330569f10777e9fa1b1cd8ea57dac00000055507"'
+
+- test:
+    - name: "Sign block_header"
+    - url: "/keys/tz1UKmZhi8dhUX5a5QTfCrsH9pK4dt1dVfJo"
+    - method: "POST"
+    - headers: {'Content-Type': 'application/json'}
+    - body: '"013bb717ee0002c68501aac40470fa66b3ca657f46dba10df233837e14c31e1193505e056ea2116cf5b5000000005c36115504cd38e4e70d5668a28b65dddb6fa82edf8f631553895735625cf0d183b7b05d6e0000001100000001000000000800000000005a62a2877920f3904dd8619b2fb66ebb323cc3b70a7f03e4baaf4a9f0a252cb0e501e000003b3fb8058de0aca200"'
 
 - test:
     - name: "Stop staking"
