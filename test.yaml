@@ -1,0 +1,27 @@
+---
+- config:
+    - testset: "Endpoint tests"
+
+- test:
+    - name: "Nonexistent endpoint test"
+    - url: "/endpoint"
+    - method: "GET"
+    - expected_status: [404]
+
+- test:
+    - name: "Bad mime type test"
+    - url: "/keys/tz1/tz1aaVRV1c32b3sDvMQe6SdqmwirSn2okWB1"
+    - method: "POST"
+    - headers: {'Content-Type': 'text/plain'}
+    - body: "text"
+    - expected_status: [415]
+
+- test:
+    - name: "Start staking"
+    - url: "/start_staking"
+    - method: "GET"
+
+- test:
+    - name: "Stop staking"
+    - url: "/stop_staking"
+    - method: "GET"
