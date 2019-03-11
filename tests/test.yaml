@@ -17,12 +17,12 @@
     - body: "text"
     - expected_status: [415]
 
-#- test:
+# - test:
 #    - name: "Register key on trezor device"
 #    - url: "/register"
 #    - method: "POST"
 #    - headers: {'Content-Type': 'application/json'}
-#    - body: '"m/44'\''/1729'\''/10'\''"'
+#    - body: "m/44'/1729'/10'"
 
 - test:
     - name: "Start staking"

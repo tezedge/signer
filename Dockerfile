@@ -45,6 +45,6 @@ RUN chmod +x /entrypoint.sh
 
 EXPOSE 5000
 
-CMD ["./entrypoint.sh"]
+# CMD ["./entrypoint.sh"]
 
 # ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:5000", "-w", "4", "app:api"]
