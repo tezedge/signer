@@ -18,3 +18,15 @@ class KeysResource(object):
         logging.info("Signing received data for {}".format(pkh))
         resp.content_type = self.content_type
         resp.body = json.dumps({"sig": "sig for {}".format(pkh)})
+
+    def parse_endorsement(self, hexstring):
+        pass
+
+    def parse_block(self, hexstring):
+        pass
+
+    def parse_delegation(self, hexstring):
+        pass
+
+    def parse_delegation_with_reveal(self, hexstring):
+        pass
