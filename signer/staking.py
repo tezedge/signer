@@ -1,6 +1,7 @@
 import json
 import logging
 
+
 class StartStaking(object):
 
     def on_get(self, req, resp):
@@ -18,6 +19,6 @@ class StopStaking(object):
         logging.info("Stopping staking")
 
         resp.content_type = 'application/json'
-        resp.body = {"Success": "Staking mode stopped"}
+        resp.body = json.dumps({"Success": "Staking mode stopped"})
 
         # call trezor
