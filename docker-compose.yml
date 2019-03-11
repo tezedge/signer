@@ -5,11 +5,13 @@ services:
   signer:
     build: ./
     hostname: signer
-    devices:
+    # devices:
       # lsusb -d 1209:53c1
-      - /dev/bus/usb/003/006
+      # - /dev/bus/usb/003/006
     ports:
     - "5000:5000"
     environment:
     - LOGLEVEL=DEBUG
     entrypoint: /entrypoint.sh
+    network_mode: "host"
+
