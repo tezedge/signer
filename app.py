@@ -5,7 +5,7 @@ from signer.staking import StopStaking, StartStaking
 from signer.sign import KeysResource
 from signer.register import Register
 from signer.authorized import Authorized
-from signer.log_requests import RequestLogger
+from signer.middleware import RequestLogger, RequireJSON
 
 # set logging level from ENV variable
 log_level = logging.INFO
@@ -18,7 +18,7 @@ except KeyError:
 logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=log_level)
 
 # create application instance
-api = application = falcon.API(middleware=RequestLogger())
+api = application = falcon.API(middleware=[RequestLogger(), RequireJSON()])
 
 # add routes to endpoints
 api.add_route('/keys/{pkh}', KeysResource())
