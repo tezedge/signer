@@ -25,7 +25,7 @@ RUN \
         curl-dev
 
 
-COPY requirements-updated.txt /
+COPY requirements.txt /
 RUN pip3 install -r requirements.txt
 
 RUN git clone https://github.com/simplestaking/trezor-common.git --branch staking_message
@@ -39,10 +39,12 @@ RUN cd python-trezor && python setup.py develop
 # development stage, replace with git repo later
 COPY signer/. /signer/
 COPY app.py /
-COPY test.yaml /
+COPY tests/. /tests/
 COPY entrypoint.sh /
-# RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 5000
 
-ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:5000", "-w", "4", "app:api"]
+CMD ["./entrypoint.sh"]
+
+# ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:5000", "-w", "4", "app:api"]
