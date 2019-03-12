@@ -2,10 +2,7 @@ import json
 import logging
 
 import falcon
-from trezorlib.client import TrezorClient
-from trezorlib.transport import get_transport
-from trezorlib.tools import parse_path
-from trezorlib import tezos, ui
+from signer import trezor_handler
 
 
 class Register(object):
@@ -18,7 +15,7 @@ class Register(object):
                 logging.info('Parsed keys.json successfully as JSON')
                 config = json.loads(json_blob)
             data = req.media
-            pkh = self.get_pkh(data)
+            pkh = trezor_handler.get_address(data)
             logging.info("Registering pkh")
 
             if pkh not in config.keys():
@@ -35,14 +32,3 @@ class Register(object):
             resp.content_type = 'application/json'
             resp.status = falcon.HTTP_500
             resp.body = json.dumps({"error": data})
-
-
-    @staticmethod
-    def get_pkh(path):
-        client = TrezorClient(get_transport(), ui=ui.ClickUI())
-        address_n = parse_path(path)
-
-        pkh = tezos.get_address(client, address_n=address_n)
-
-        client.close()
-        return pkh

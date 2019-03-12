@@ -22,7 +22,6 @@ def get_public_key(path):
         logging.error("Error while getting public key ", e)
 
 
-
 def get_address(path):
     try:
         client = trezor_connect()
