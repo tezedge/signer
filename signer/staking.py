@@ -1,6 +1,6 @@
 import json
 import logging
-
+from signer import trezor_handler
 
 class StartStaking(object):
 
@@ -11,7 +11,7 @@ class StartStaking(object):
         resp.body = json.dumps({"Success": "Staking mode started"})
 
         # call trezor
-
+        trezor_handler.start_staking()
 
 class StopStaking(object):
 
@@ -22,3 +22,4 @@ class StopStaking(object):
         resp.body = json.dumps({"Success": "Staking mode stopped"})
 
         # call trezor
+        trezor_handler.stop_staking()

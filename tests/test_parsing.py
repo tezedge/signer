@@ -15,7 +15,7 @@ def test_parse_endorsement():
 
     rs = KeysResource()
 
-    parsed_endorsement = rs.parse_endorsement("02e3e15e6053f552f0e22a364259848b1e13f124cbae330569f10777e9fa1b1cd8ea57dac00000055507")
+    parsed_endorsement = rs.parse_endorsement(bytes.fromhex("02e3e15e6053f552f0e22a364259848b1e13f124cbae330569f10777e9fa1b1cd8ea57dac00000055507"))
 
     assert parsed_endorsement == endorsement_dict
 
@@ -43,7 +43,7 @@ def test_parse_block_header():
 
     rs = KeysResource()
 
-    parsed_block_header = rs.parse_block("013bb717ee0002c68501aac40470fa66b3ca657f46dba10df233837e14c31e1193505e056ea2116cf5b5000000005c36115504cd38e4e70d5668a28b65dddb6fa82edf8f631553895735625cf0d183b7b05d6e0000001100000001000000000800000000005a62a2877920f3904dd8619b2fb66ebb323cc3b70a7f03e4baaf4a9f0a252cb0e501e000003b3fb8058de0aca200")
+    parsed_block_header = rs.parse_block(bytes.fromhex("013bb717ee0002c68501aac40470fa66b3ca657f46dba10df233837e14c31e1193505e056ea2116cf5b5000000005c36115504cd38e4e70d5668a28b65dddb6fa82edf8f631553895735625cf0d183b7b05d6e0000001100000001000000000800000000005a62a2877920f3904dd8619b2fb66ebb323cc3b70a7f03e4baaf4a9f0a252cb0e501e000003b3fb8058de0aca200"))
 
     assert parsed_block_header == block_header_dict
 
@@ -66,8 +66,9 @@ def test_parse_delegetion_without_reveal():
 
     rs = KeysResource()
 
-    parsed = rs.parse_delegation("9b8b8bc45d611a3ada20ad0f4b6f0bfd72ab395cc52213a57b14d1fb75b37fd00a0000001e65c88ae6317cd62a638c8abd1e71c83c847500ffd206c80100ff0049a35041e4be130977d51419208ca1d487cfb2e7")
+    parsed = rs.parse_delegation(bytes.fromhex("039b8b8bc45d611a3ada20ad0f4b6f0bfd72ab395cc52213a57b14d1fb75b37fd00a0000001e65c88ae6317cd62a638c8abd1e71c83c847500ffd206c80100ff0049a35041e4be130977d51419208ca1d487cfb2e7"))
     assert parsed == delegegation
+
 
 def test_parse_delegation_with_reveal():
     delegation = {
@@ -98,5 +99,5 @@ def test_parse_delegation_with_reveal():
 
     rs = KeysResource()
 
-    parsed = rs.parse_delegation_with_reveal("03a4f206a45ff89c2f660d84b91b4c2b2cbd2c02b8bffba41dd364693cefbfd0fc0700005f450441f41ee11eee78a31d1e1e55627c783bd6eb098c07904e00000612ffd3ad44a335c620f6e2f6ce7ffdea0ee1ea835a661b9f6f3c2376836b0a0a00005f450441f41ee11eee78a31d1e1e55627c783bd68a098d07f44e00ff005f450441f41ee11eee78a31d1e1e55627c783bd6")
+    parsed = rs.parse_delegation_with_reveal(bytes.fromhex("03a4f206a45ff89c2f660d84b91b4c2b2cbd2c02b8bffba41dd364693cefbfd0fc0700005f450441f41ee11eee78a31d1e1e55627c783bd6eb098c07904e00000612ffd3ad44a335c620f6e2f6ce7ffdea0ee1ea835a661b9f6f3c2376836b0a0a00005f450441f41ee11eee78a31d1e1e55627c783bd68a098d07f44e00ff005f450441f41ee11eee78a31d1e1e55627c783bd6"))
     assert parsed == delegation
