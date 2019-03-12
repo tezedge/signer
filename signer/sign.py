@@ -4,12 +4,7 @@ import struct
 from signer import trezor_handler
 import falcon
 
-from trezorlib.client import TrezorClient
-from trezorlib.transport import get_transport
-from trezorlib.tools import parse_path
-from trezorlib import tezos, ui, messages
-from trezorlib import messages as proto
-from trezorlib.exceptions import TrezorFailure
+from trezorlib import messages
 from trezorlib.protobuf import dict_to_proto
 
 
