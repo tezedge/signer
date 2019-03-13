@@ -4,16 +4,16 @@ import falcon
 
 class RequestLogger(object):
     def process_request(self, req, resp):
-        logging.debug("[REQUEST] method: {}".format(req.method))
-        logging.debug("          url: {}".format(req.uri))
-        logging.debug("          content-type: {}".format(req.content_type))
-        if req.method in 'POST':
-            logging.debug("          data:{}".format(req.media))
+        # logging.debug("[REQUEST] method: {}".format(req.method))
+        # logging.debug("          url: {}".format(req.uri))
+        # logging.debug("          content-type: {}".format(req.content_type))
+        # if req.method in 'POST':
+        #     logging.debug("          data:{}".format(req.media))
 
     def process_response(self, req, resp, resource, req_succeeded):
-        logging.debug("[RESPONSE] status: {}".format(resp.status))
-        logging.debug("           content-type: {}".format(resp.content_type))
-        logging.debug("           data:{}".format(resp.body))
+        # logging.debug("[RESPONSE] status: {}".format(resp.status))
+        # logging.debug("           content-type: {}".format(resp.content_type))
+        # logging.debug("           data:{}".format(resp.body))
 
 
 class RequireJSON(object):
