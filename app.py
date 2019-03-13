@@ -18,7 +18,7 @@ except KeyError:
 logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=log_level)
 
 # create application instance
-api = application = falcon.API(middleware=[RequestLogger(), RequireJSON()])
+api = application = falcon.API(middleware=[RequestLogger()])
 
 # add routes to endpoints
 api.add_route('/keys/{pkh}', KeysResource())
