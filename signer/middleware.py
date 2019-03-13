@@ -7,8 +7,8 @@ class RequestLogger(object):
         logging.debug("[REQUEST] method: {}".format(req.method))
         logging.debug("          url: {}".format(req.uri))
         logging.debug("          content-type: {}".format(req.content_type))
-        if req.method in 'POST':
-            logging.debug("          data:{}".format(req.media))
+        # if req.method in 'POST':
+        #     logging.debug("          data:{}".format(req.media))
 
     def process_response(self, req, resp, resource, req_succeeded):
         logging.debug("[RESPONSE] status: {}".format(resp.status))

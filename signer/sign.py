@@ -69,7 +69,9 @@ class KeysResource(object):
 
             # sign, if we have allready registered the hdpath for the signer
             if pkh in config.keys():
-                msg_bytes = bytes.fromhex(req.media)
+                # read and desiarailize data 
+                data = json.loads(req.stream.read())
+                msg_bytes = bytes.fromhex(data)
                 proto_message = self.parse_message(msg_bytes)
 
                 if self.is_endorsement(msg_bytes) or self.is_block(msg_bytes):
