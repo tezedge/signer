@@ -12,8 +12,8 @@ class RequestLogger(object):
 
     def process_response(self, req, resp, resource, req_succeeded):
         logging.debug("[RESPONSE] status: {}".format(resp.status))
-        logging.debug("           content-type: {}".format(resp.content_type))
-        logging.debug("           data:{}".format(resp.body))
+        # logging.debug("           content-type: {}".format(resp.content_type))
+        # logging.debug("           data:{}".format(resp.body))
 
 
 class RequireJSON(object):
