@@ -3,6 +3,7 @@ import logging
 import struct
 from signer import trezor_handler
 import falcon
+import os
 
 from trezorlib import messages
 from trezorlib.protobuf import dict_to_proto
@@ -29,20 +30,17 @@ class KeysResource(object):
     # needed for the presence_of_nonce_hash
     BLOCK_PRESENCE_OF_NONCE_INDEX_WITHOUT_FITNESS = 133
 
-    def __init__(self):
+    def __init__(self, keys_config):
         # the only mimetype we return is json
         self.content_type = 'application/json'
+
+        self.keys_config = keys_config
 
     def on_get(self, req, resp, pkh):
         logging.info("Retrieving public key for {}".format(pkh))
         try:
-            with open('signer/known_keys.json', 'r') as myfile:
-                json_blob = myfile.read().replace('\n', '')
-                logging.info('Parsed keys.json successfully as JSON')
-                config = json.loads(json_blob)
-
-            if pkh in config.keys():
-                pk = trezor_handler.get_public_key(config[pkh])
+            if pkh in self.keys_config.keys():
+                pk = trezor_handler.get_public_key(self.keys_config[pkh])
 
                 resp.content_type = self.content_type
                 resp.body = json.dumps({"public_key": "{}".format(pk)})
@@ -59,26 +57,20 @@ class KeysResource(object):
         try:
             resp.content_type = self.content_type
 
-            # get the hdpath and pkh pairs from file
-            with open('signer/known_keys.json', 'r') as myfile:
-                json_blob = myfile.read().replace('\n', '')
-                logging.info('Parsed keys.json successfully as JSON')
-                config = json.loads(json_blob)
-
             logging.info("Signing received data for {}".format(pkh))
 
             # sign, if we have allready registered the hdpath for the signer
-            if pkh in config.keys():
+            if pkh in self.keys_config.keys():
                 # read and desiarailize data 
                 data = json.loads(req.stream.read())
                 msg_bytes = bytes.fromhex(data)
                 proto_message = self.parse_message(msg_bytes)
 
                 if self.is_endorsement(msg_bytes) or self.is_block(msg_bytes):
-                    signature = trezor_handler.sign_baking(proto_message, config[pkh])
+                    signature = trezor_handler.sign_baking(proto_message, self.keys_config[pkh])
                 elif self.is_transaction_like(msg_bytes):
                     logging.info("Operation is transaction like")
-                    signature = trezor_handler.sign_delegation(proto_message, config[pkh])
+                    signature = trezor_handler.sign_delegation(proto_message, self.keys_config[pkh])
                 else:
                     resp.status = falcon.HTTP_500
                     resp.body = json.dumps({"Error": "Message not supported"})
