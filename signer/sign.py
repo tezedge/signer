@@ -16,6 +16,8 @@ class KeysResource(object):
     FITNESS_PREFIX_SIZE = 4
     DELEGATION_TAG = 10
     REVEAL_TAG = 7
+    PROPOSAL_TAG = 5
+    BALLOT_TAG = 6
 
     # Pad the deserialized data
     PADDING_2 = 2
@@ -29,6 +31,8 @@ class KeysResource(object):
 
     # needed for the presence_of_nonce_hash
     BLOCK_PRESENCE_OF_NONCE_INDEX_WITHOUT_FITNESS = 133
+
+    PROPOSAL_LENGTH = 32
 
     def __init__(self, keys_config):
         # the only mimetype we return is json
@@ -106,6 +110,10 @@ class KeysResource(object):
                 operation = self.parse_delegation(msg_bytes)
             elif operation_tag == self.REVEAL_TAG:
                 operation = self.parse_delegation_with_reveal(msg_bytes)
+            elif operation_tag == self.PROPOSAL_TAG:
+                operation = self.parse_proposal(msg_bytes)
+            elif operation_tag == self.BALLOT_TAG:
+                operation = self.parse_ballot(msg_bytes)
             return dict_to_proto(messages.TezosSignTx, operation)
         else:
             logging.warning("Message not supported!")
@@ -322,6 +330,45 @@ class KeysResource(object):
             logging.error("Error occurred while parsing delegation with reveal")
 
         return delegatio_with_reveal_msg
+
+    # TODO: test needed
+    def parse_proposal(self, msg_bytes):
+        proposal_msg = None
+        try:
+            bytes_in_proposals_field = int.from_bytes(msg_bytes[59:62], 'big')
+            # proposal_count = bytes_in_proposals_field / self.PROPOSAL_LENGTH
+
+            proposal_format = 'B32sB21s4s4s{}s'.format(bytes_in_proposals_field)
+            fields = struct.unpack(proposal_format, msg_bytes)
+
+            # unpack the message
+            (magic_byte,
+             branch,
+             operation_tag,
+             source,
+             period,
+             bytes_in_next_field,
+             proposals
+             ) = fields
+
+            # create a dictionary from the deserialized data
+            proposal_msg = {
+                "branch": branch.hex(),
+                "proposal": {
+                    "source": source.hex(),
+                    "period": int.from_bytes(period, 'big'),
+                    "bytes_in_next_field": int.from_bytes(bytes_in_next_field, 'big'),
+                    "proposals": proposals.hex()
+                },
+            }
+        except Exception as e:
+            logging.error("Error occured while parsing proposal")
+
+        return proposal_msg
+
+    # TODO: Parse ballot as well
+    def parse_ballot(self, msg_bytes):
+        pass
 
     @staticmethod
     def _decode_bool(num):
