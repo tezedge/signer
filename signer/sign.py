@@ -3,6 +3,7 @@ import logging
 import struct
 from signer import trezor_handler
 import falcon
+import os
 
 from trezorlib import messages
 from trezorlib.protobuf import dict_to_proto
@@ -15,6 +16,8 @@ class KeysResource(object):
     FITNESS_PREFIX_SIZE = 4
     DELEGATION_TAG = 10
     REVEAL_TAG = 7
+    PROPOSAL_TAG = 5
+    BALLOT_TAG = 6
 
     # Pad the deserialized data
     PADDING_2 = 2
@@ -29,20 +32,19 @@ class KeysResource(object):
     # needed for the presence_of_nonce_hash
     BLOCK_PRESENCE_OF_NONCE_INDEX_WITHOUT_FITNESS = 133
 
-    def __init__(self):
+    PROPOSAL_LENGTH = 32
+
+    def __init__(self, keys_config):
         # the only mimetype we return is json
         self.content_type = 'application/json'
+
+        self.keys_config = keys_config
 
     def on_get(self, req, resp, pkh):
         logging.info("Retrieving public key for {}".format(pkh))
         try:
-            with open('signer/known_keys.json', 'r') as myfile:
-                json_blob = myfile.read().replace('\n', '')
-                logging.info('Parsed keys.json successfully as JSON')
-                config = json.loads(json_blob)
-
-            if pkh in config.keys():
-                pk = trezor_handler.get_public_key(config[pkh])
+            if pkh in self.keys_config.keys():
+                pk = trezor_handler.get_public_key(self.keys_config[pkh])
 
                 resp.content_type = self.content_type
                 resp.body = json.dumps({"public_key": "{}".format(pk)})
@@ -59,26 +61,20 @@ class KeysResource(object):
         try:
             resp.content_type = self.content_type
 
-            # get the hdpath and pkh pairs from file
-            with open('signer/known_keys.json', 'r') as myfile:
-                json_blob = myfile.read().replace('\n', '')
-                logging.info('Parsed keys.json successfully as JSON')
-                config = json.loads(json_blob)
-
             logging.info("Signing received data for {}".format(pkh))
 
             # sign, if we have allready registered the hdpath for the signer
-            if pkh in config.keys():
+            if pkh in self.keys_config.keys():
                 # read and desiarailize data 
                 data = json.loads(req.stream.read())
                 msg_bytes = bytes.fromhex(data)
                 proto_message = self.parse_message(msg_bytes)
 
                 if self.is_endorsement(msg_bytes) or self.is_block(msg_bytes):
-                    signature = trezor_handler.sign_baking(proto_message, config[pkh])
+                    signature = trezor_handler.sign_baking(proto_message, self.keys_config[pkh])
                 elif self.is_transaction_like(msg_bytes):
                     logging.info("Operation is transaction like")
-                    signature = trezor_handler.sign_delegation(proto_message, config[pkh])
+                    signature = trezor_handler.sign_delegation(proto_message, self.keys_config[pkh])
                 else:
                     resp.status = falcon.HTTP_500
                     resp.body = json.dumps({"Error": "Message not supported"})
@@ -114,6 +110,10 @@ class KeysResource(object):
                 operation = self.parse_delegation(msg_bytes)
             elif operation_tag == self.REVEAL_TAG:
                 operation = self.parse_delegation_with_reveal(msg_bytes)
+            elif operation_tag == self.PROPOSAL_TAG:
+                operation = self.parse_proposal(msg_bytes)
+            elif operation_tag == self.BALLOT_TAG:
+                operation = self.parse_ballot(msg_bytes)
             return dict_to_proto(messages.TezosSignTx, operation)
         else:
             logging.warning("Message not supported!")
@@ -330,6 +330,45 @@ class KeysResource(object):
             logging.error("Error occurred while parsing delegation with reveal")
 
         return delegatio_with_reveal_msg
+
+    # TODO: test needed
+    def parse_proposal(self, msg_bytes):
+        proposal_msg = None
+        try:
+            bytes_in_proposals_field = int.from_bytes(msg_bytes[59:62], 'big')
+            # proposal_count = bytes_in_proposals_field / self.PROPOSAL_LENGTH
+
+            proposal_format = 'B32sB21s4s4s{}s'.format(bytes_in_proposals_field)
+            fields = struct.unpack(proposal_format, msg_bytes)
+
+            # unpack the message
+            (magic_byte,
+             branch,
+             operation_tag,
+             source,
+             period,
+             bytes_in_next_field,
+             proposals
+             ) = fields
+
+            # create a dictionary from the deserialized data
+            proposal_msg = {
+                "branch": branch.hex(),
+                "proposal": {
+                    "source": source.hex(),
+                    "period": int.from_bytes(period, 'big'),
+                    "bytes_in_next_field": int.from_bytes(bytes_in_next_field, 'big'),
+                    "proposals": proposals.hex()
+                },
+            }
+        except Exception as e:
+            logging.error("Error occured while parsing proposal")
+
+        return proposal_msg
+
+    # TODO: Parse ballot as well
+    def parse_ballot(self, msg_bytes):
+        pass
 
     @staticmethod
     def _decode_bool(num):

@@ -2,7 +2,7 @@ import pytest
 from trezorlib.client import TrezorClient
 from trezorlib.transport import get_transport
 from trezorlib.tools import parse_path
-from trezorlib import tezos, ui
+from trezorlib import tezos, ui, device
 from trezorlib import messages as proto
 from trezorlib.transport import TransportException
 from trezorlib.exceptions import TrezorFailure
@@ -34,9 +34,8 @@ def test_trezor_not_supported_in_baking_mode():
     assert isinstance(ret, proto.Success)
 
     # call a not supported message during baking mode
-    address_n = parse_path("m/44'/1729'/0'")
     with pytest.raises(TrezorFailure):
-        ret = tezos.get_address(client, address_n=address_n)
+        ret = device.change_pin(client)
         assert isinstance(ret, proto.Failure)
 
     # make sure we deactivate baking mode
