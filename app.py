@@ -1,6 +1,7 @@
 import falcon
 import logging, sys
 import os
+import json
 from signer.staking import StopStaking, StartStaking, ResetDevice, ChangePin 
 from signer.sign import KeysResource
 from signer.register import Register
