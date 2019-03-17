@@ -1,7 +1,7 @@
 from trezorlib.client import TrezorClient
 from trezorlib.transport import get_transport
 from trezorlib.tools import parse_path
-from trezorlib import tezos, ui
+from trezorlib import tezos, ui, device
 from trezorlib.transport import TransportException
 
 import logging
@@ -86,5 +86,28 @@ def stop_staking():
     client = trezor_connect()
 
     tezos.control_baking(client, stake=False)
+
+    client.close()
+
+# TODO: move to right place 
+def reset_device():
+    logging.info("Setup device and generate new seed.")
+    client = trezor_connect()
+    try:
+        device.reset(client)
+    except Exception as e:
+        logging.error("Error device is initialized", e)
+
+    client.close()
+
+
+# TODO: move to right place
+def change_pin():
+    logging.info("Setup device and generate new seed.")
+    client = trezor_connect()
+    try:
+        device.change_pin(client)
+    except Exception as e:
+        logging.error("Can not change pin", e)
 
     client.close()

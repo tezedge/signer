@@ -1,7 +1,7 @@
 import falcon
 import logging, sys
 import os
-from signer.staking import StopStaking, StartStaking
+from signer.staking import StopStaking, StartStaking, ResetDevice, ChangePin 
 from signer.sign import KeysResource
 from signer.register import Register
 from signer.authorized import Authorized
@@ -25,4 +25,6 @@ api.add_route('/keys/{pkh}', KeysResource())
 api.add_route('/register', Register())
 api.add_route('/start_staking', StartStaking())
 api.add_route('/stop_staking', StopStaking())
+api.add_route('/reset_device', ResetDevice())
+api.add_route('/change_pin', ChangePin())
 api.add_route('/authorized_keys', Authorized())
