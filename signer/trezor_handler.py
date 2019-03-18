@@ -43,7 +43,7 @@ def trezor_connect():
         logging.error("Trezor device not found")
 
 
-def sign_delegation(msg, address):
+def sign_non_baking_op(msg, address):
     signature = None
     try:
         client = trezor_connect()
