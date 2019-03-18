@@ -33,3 +33,31 @@ class Register(object):
             resp.content_type = 'application/json'
             resp.status = falcon.HTTP_500
             resp.body = json.dumps({"error": data})
+
+
+class ResetDevice(object):
+
+    def on_get(self, req, resp):
+        logging.info("Reset Device")
+        resp.content_type = 'application/json'
+
+        # call trezor
+        try:
+            trezor_handler.reset_device()
+            resp.body = json.dumps({"Success": "Device initialized"})
+        except Exception as e:
+            resp.body = json.dumps({"Failed": "Device not initialized"})
+
+
+class ChangePin(object):
+
+    def on_get(self, req, resp):
+        logging.info("Change Pin")
+        resp.content_type = 'application/json'
+
+        # call trezor
+        try:
+            trezor_handler.change_pin()
+            resp.body = json.dumps({"Success": "Pin Changed"})
+        except Exception as e:
+            resp.body = json.dumps({"Failed": "Pin not changed"})

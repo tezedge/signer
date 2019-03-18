@@ -89,7 +89,7 @@ def stop_staking():
 
     client.close()
 
-# TODO: move to right place 
+
 def reset_device():
     logging.info("Setup device and generate new seed.")
     client = trezor_connect()
@@ -101,13 +101,14 @@ def reset_device():
     client.close()
 
 
-# TODO: move to right place
 def change_pin():
     logging.info("Setup device and generate new seed.")
     client = trezor_connect()
     try:
-        device.change_pin(client)
+        ret = device.change_pin(client)
     except Exception as e:
         logging.error("Can not change pin", e)
 
     client.close()
+    return ret
+
