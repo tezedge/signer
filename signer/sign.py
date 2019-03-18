@@ -12,7 +12,7 @@ from trezorlib.protobuf import dict_to_proto
 class KeysResource(object):
     BLOCK_WATERMARK = 1
     ENDORSEMENT_WATERMARK = 2
-    DELEGATION_WATERMARK = 3
+    TRANSACTION_WATERMARK = 3
     FITNESS_PREFIX_SIZE = 4
     DELEGATION_TAG = 10
     REVEAL_TAG = 7
@@ -84,6 +84,8 @@ class KeysResource(object):
                 resp.status = falcon.HTTP_500
         except Exception as e:
             logging.error("Error in signing: \n", e)
+            resp.status = falcon.HTTP_500
+            resp.body = json.dumps({"Error": e})
 
     def is_endorsement(self, msg_bytes):
         return msg_bytes[0] == self.ENDORSEMENT_WATERMARK
@@ -92,7 +94,7 @@ class KeysResource(object):
         return msg_bytes[0] == self.BLOCK_WATERMARK
 
     def is_transaction_like(self, msg_bytes):
-        return msg_bytes[0] == self.DELEGATION_WATERMARK
+        return msg_bytes[0] == self.TRANSACTION_WATERMARK
 
     def parse_message(self, msg_bytes):
         # msg_bytes = bytes.fromhex(msg)
@@ -335,7 +337,8 @@ class KeysResource(object):
     def parse_proposal(self, msg_bytes):
         proposal_msg = None
         try:
-            bytes_in_proposals_field = int.from_bytes(msg_bytes[59:62], 'big')
+            bytes_in_proposals_field = int.from_bytes(msg_bytes[59:63], 'big')
+            print(bytes_in_proposals_field)
             # proposal_count = bytes_in_proposals_field / self.PROPOSAL_LENGTH
 
             proposal_format = 'B32sB21s4s4s{}s'.format(bytes_in_proposals_field)
@@ -362,13 +365,42 @@ class KeysResource(object):
                 },
             }
         except Exception as e:
-            logging.error("Error occured while parsing proposal")
+            logging.error("Error occured while parsing proposal", e)
 
         return proposal_msg
 
-    # TODO: Parse ballot as well
+    # TODO: test needed
     def parse_ballot(self, msg_bytes):
-        pass
+        ballot_msg = None
+
+        try:
+            ballot_format = 'B32sB21s4s32sB'
+            fields = struct.unpack(ballot_format, msg_bytes)
+
+            (magic_byte,
+             branch,
+             operation_tag,
+             source,
+             period,
+             proposal,
+             ballot
+            ) = fields
+
+        # create dictionary
+            ballot_msg = {
+                "branch": branch.hex(),
+                "ballot": {
+                    "source": source.hex(),
+                    "period": int.from_bytes(period, 'big'),
+                    "proposal": proposal.hex(),
+                    "ballot": f"{ballot:0{self.PADDING_2}x}"
+                },
+            }
+
+        except Exception as e:
+            logging.error("Error occurred while parsing ballot", e)
+
+        return ballot_msg
 
     @staticmethod
     def _decode_bool(num):
