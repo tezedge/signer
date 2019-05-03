@@ -63,7 +63,7 @@ def sign_baking(msg, address):
     try:
         client = trezor_connect()
         address_n = parse_path(address)
-        signature = tezos.sign_baker_op(client, address_n, msg)
+        signature = tezos.sign_baker_op(client, address_n, msg, show_display=True)
         client.close()
     except Exception as e:
         logging.error("Error in trezor signing", e)
@@ -76,17 +76,7 @@ def start_staking():
     logging.info("Staking about to start")
     client = trezor_connect()
 
-    tezos.control_baking(client, stake=True)
-    client.close()
-
-
-# will be removed
-def stop_staking():
-    logging.info("Staking about to stop")
-    client = trezor_connect()
-
-    tezos.control_baking(client, stake=False)
-
+    tezos.control_baking(client)
     client.close()
 
 

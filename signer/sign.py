@@ -150,11 +150,9 @@ class KeysResource(object):
             # create a dictionary from the deserialized data
             # f"{int}:0{padding}x" -> convert the int into string of the required length
             endorsement_msg = {
-                "magic_byte": f"{magic_byte:0{self.PADDING_2}x}",
                 "chain_id": chain_id.hex(),
                 "endorsement": {
                     "branch": branch.hex(),
-                    "tag": tag,
                     "level": int.from_bytes(level, 'big'),
                 }
             }
@@ -201,9 +199,7 @@ class KeysResource(object):
             ) = fields
 
             # create a dictionary from the deserialized data
-            # f"{int}:0{padding}x" -> convert the int into string of the required length
             block_header_msg = {
-                "magic_byte": f"{magic_byte:0{self.PADDING_2}x}",
                 "chain_id": chain_id.hex(),
                 "block_header": {
                     "level": int.from_bytes(level, 'big'),
@@ -368,14 +364,21 @@ class KeysResource(object):
              proposals
              ) = fields
 
+            proposal_list = list(
+                [
+                    proposals[i: i + 32]
+                    for i in range(0, len(proposals), 32)
+                ]
+            )
+            proposal_list2 = [prop.hex() for prop in proposal_list]
+
             # create a dictionary from the deserialized data
             proposal_msg = {
                 "branch": branch.hex(),
                 "proposal": {
                     "source": source.hex(),
                     "period": int.from_bytes(period, 'big'),
-                    "bytes_in_next_field": int.from_bytes(bytes_in_next_field, 'big'),
-                    "proposals": proposals.hex()
+                    "proposals": proposal_list2,
                 },
             }
         except Exception as e:
@@ -407,7 +410,7 @@ class KeysResource(object):
                     "source": source.hex(),
                     "period": int.from_bytes(period, 'big'),
                     "proposal": proposal.hex(),
-                    "ballot": f"{ballot:0{self.PADDING_2}x}"
+                    "ballot": ballot
                 },
             }
 
