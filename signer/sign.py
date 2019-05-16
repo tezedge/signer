@@ -137,7 +137,8 @@ class KeysResource(object):
     def parse_endorsement(self, msg_bytes):
         endorsement_msg = None
         try:
-            endorsement_format = 'B4s32sB4s'
+            logging.info(msg_bytes)
+            endorsement_format = 'B4s32sBB4s'
             fields = struct.unpack(endorsement_format, msg_bytes)
 
             # unpack the message
@@ -145,7 +146,10 @@ class KeysResource(object):
              chain_id,
              branch,
              tag,
+             slot,
              level) = fields
+
+            logging.info(slot)
 
             # create a dictionary from the deserialized data
             # f"{int}:0{padding}x" -> convert the int into string of the required length
@@ -153,10 +157,12 @@ class KeysResource(object):
                 "chain_id": chain_id.hex(),
                 "endorsement": {
                     "branch": branch.hex(),
+                    "slot": slot,
                     "level": int.from_bytes(level, 'big'),
                 }
             }
         except Exception as e:
+            logging.error(e)
             logging.error("Error occured while parsing endorsement")
 
         return endorsement_msg
@@ -418,6 +424,9 @@ class KeysResource(object):
             logging.error("Error occurred while parsing ballot", e)
 
         return ballot_msg
+
+    def parse_tx(self, msg_bytes):
+        tx_message = None
 
     @staticmethod
     def _decode_bool(num):
