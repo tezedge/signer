@@ -138,7 +138,7 @@ class KeysResource(object):
         endorsement_msg = None
         try:
             logging.info(msg_bytes)
-            endorsement_format = 'B4s32sBB4s'
+            endorsement_format = 'B4s32sB4s'
             fields = struct.unpack(endorsement_format, msg_bytes)
 
             # unpack the message
@@ -146,10 +146,7 @@ class KeysResource(object):
              chain_id,
              branch,
              tag,
-             slot,
              level) = fields
-
-            logging.info(slot)
 
             # create a dictionary from the deserialized data
             # f"{int}:0{padding}x" -> convert the int into string of the required length
@@ -157,7 +154,6 @@ class KeysResource(object):
                 "chain_id": chain_id.hex(),
                 "endorsement": {
                     "branch": branch.hex(),
-                    "slot": slot,
                     "level": int.from_bytes(level, 'big'),
                 }
             }
